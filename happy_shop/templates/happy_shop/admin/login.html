@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+{% load i18n static %}
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} | {{ desc }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'happy_shop/css/buefy.min.css' %}">
+    <link rel="stylesheet" href="{% static 'happy_shop/css/materialdesignicons.min.css' %}">
+    <script src="{% static 'happy_shop/js/axios.min.js' %}"></script>
+    {% block extra_style %}{% endblock %}
+    <style>
+        html,body{
+            background-color: rgb(180, 255, 227);
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero is-light is-bold is-fullheight" id="adminLogin">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-5-desktop is-4-fullhd is-6-widescreen is-7-tablet">
+                        <div class="box" style="margin-top: -200px;">
+                            <div class="has-text-centered mb-4 mt-4">
+                                <h1 class="title has-text-black-bis">{{ title }}</h1>
+                                <p class="subtitle has-text-black-ter">{{ desc }}</p>
+                                <div class=" dropdown-divider"></div>
+                            </div>
+                            
+                            {% if form.errors and not form.non_field_errors %}
+                            <b-message type="is-danger">
+                            {% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+                            </b-message>
+                            {% endif %}
+
+                            {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                            <b-message type="is-danger">
+                                {{ error }}
+                            </b-message>
+                            {% endfor %}
+                            {% endif %}
+
+
+                            {% if user.is_authenticated %}
+                            <b-message type="is-danger">
+                            {% blocktranslate trimmed %}
+                                You are authenticated as {{ username }}, but are not authorized to
+                                access this page. Would you like to login to a different account?
+                            {% endblocktranslate %}
+                            </b-message>
+                            {% endif %}
+
+
+                            <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+                                {% for field in form %}
+                                <div class="mb-2">
+                                    <b-field label="{{ field.label }}"
+                                        :label-position="labelPosition">
+                                        {{ field }}
+                                        <template #message>
+                                            {% if field.errors %}
+                                            <div class=" has-text-danger">{{ field.errors }}</div>
+                                            {% else %}
+                                            {{ field.help_text }}
+                                            {% endif %}
+                                        </template>
+                                    </b-field>
+                                </div>
+                                {% endfor %}
+                                
+                                {% url 'admin_password_reset' as password_reset_url %}
+                                {% if password_reset_url %}
+                                <div class="is-size-7 has-text-grey-light mb-3">
+                                  <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+                                </div>
+                                {% endif %}
+                                <div class="mb-4">
+                                  <input type="submit" class=" button is-primary is-fullwidth" value="{% translate 'Log in' %}">
+                                </div>
+                              </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="{% static 'happy_shop/js/vue.js' %}"></script>
+    <script src="{% static 'happy_shop/js/buefy.min.js' %}"></script>
+    <script src="{% static 'happy_shop/js/request.js' %}"></script>
+
+    <script>
+        var adminLogin = new Vue({
+            el:'#adminLogin',
+            data:{
+                labelPosition: 'on-border'
+            }
+        })
+    </script>
+</body>
+
+</html>

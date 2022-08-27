@@ -1,0 +1,66 @@
+<b-modal v-model="isAddrModalActive" :width="640" scroll="keep">
+    <div class="box">
+        <div class="block mb-5">
+            <h1 class="is-size-4">
+                <span class="icon"><i class="mdi mdi mdi-map-plus"></i></span>
+                添加地址
+            </h1>
+            <div class=" dropdown-divider"></div>
+        </div>
+        <div class="block">
+            <b-field label="*姓名"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.name"
+                    placeholder="请输入收件人姓名"
+                    maxlength="30">
+                </b-input>
+            </b-field>
+            <b-field label="*电话"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.phone"
+                    placeholder="请输入收件人联系电话"
+                    maxlength="11">
+                </b-input>
+            </b-field>
+            <b-field label="*省份"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.province"
+                    placeholder="请输入收件人所在省份"
+                    maxlength="30">
+                </b-input>
+            </b-field>
+            <b-field label="*城市"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.city"
+                    placeholder="请输入收件人所在城市"
+                    maxlength="30">
+                </b-input>
+            </b-field>
+            <b-field label="*区/县"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.county"
+                    placeholder="请输入收件人所在区/县"
+                    maxlength="100">
+                </b-input>
+            </b-field>
+            <b-field label="*详细地址"
+                :label-position="labelPosition">
+                <b-input type="text"
+                    v-model="address.address"
+                    placeholder="请输入收件人所在详细地址，精准到门牌号"
+                    maxlength="100">
+                </b-input>
+            </b-field>
+            <b-field>
+                <b-checkbox v-model="address.is_default">设为默认</b-checkbox>
+            </b-field>
+            <button class="button is-primary is-fullwidth" v-if="!address.id" @click="addrCreate">提交</button>
+            <button class="button is-success is-fullwidth" v-else @click="addrUpdateClick">修改</button>
+        </div>
+    </div>
+</b-modal>

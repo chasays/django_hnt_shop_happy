@@ -1,0 +1,82 @@
+{% extends 'happy_shop/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block end_div %}{% endblock %}
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    {% if category.parent %}
+    <b-breadcrumb-item tag='a'>{{ category.parent.name }}</b-breadcrumb-item>
+    {% endif %}
+    <b-breadcrumb-item tag='a' active>{{ category.name }}</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block main %}
+<style>
+    .select select{
+        border-color:aliceblue;
+        color: rgb(108, 108, 108);
+    }
+</style>
+<section class="section" id="Goods">
+    <div class="container">
+        <div class="columns is-multiline">
+            {% for sku in page_obj %}
+            <div class="column is-3">
+                <a href="{% url 'happy_shop:goods_detail' sku.spu.id %}" class="box">
+                    <figure class="image is-square">
+                        <img src="{{ MEDIA_URL }}{{ sku.main_picture }}" alt="{{ sku.spu.title }}">
+                    </figure>
+                    <h1 class="pt-3 pb-1 has-text-weight-medium is-size-4 has-text-danger-dark is-family-primary">
+                        ¥{{ sku.sell_price }}</h1>
+                    <h2 class="is-family-secondary is-size-14">
+                        {{ sku.spu.title }} {{ sku.get_options }}
+                    </h2>
+                    <div class="mt-2 foot">
+                        <div class="is-pulled-left is-size-7 has-text-grey-light">{{ sku.sales }}人付款</div>
+                        <div class="is-pulled-right is-size-7 has-text-grey-light">5.0分</div>
+                        <div class="is-clearfix"></div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if page_obj %}
+        <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+            {% if page_obj.has_previous %}
+            <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">Next page</a>
+            {% endif %}
+            <ul class="pagination-list">
+                {% if page_obj.has_previous %}
+                <li><a class="pagination-link" aria-label="Goto page 45"
+                        href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+                {% endif %}
+                <li><a class="pagination-link is-current" aria-label="Page {{ page_obj.number }}" aria-current="page"
+                        href='?page={{ page_obj.number }}'>{{ page_obj.number }}</a></li>
+                {% if page_obj.has_next %}
+                <li><a class="pagination-link" href="?page={{ page_obj.next_page_number }}"
+                        aria-label="Goto page {{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block vue %}
+<script>
+    var Goods = new Vue({
+        el: "#Goods",
+        data: {}
+    })
+</script>
+{% endblock %}

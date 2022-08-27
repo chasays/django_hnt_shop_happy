@@ -1,0 +1,21 @@
+<b-modal v-model="isCardModalActive" :width="640" scroll="keep">
+    <div class="card">
+        <header class="card-header">
+            <h1 class="card-header-title">
+                选择收货地址
+            </h1>
+        </header>
+        <div class="card-content">
+            <div class="content">
+                <a class="box" v-for="(item, index) in address" :key="index" @click="optAddress(item.id)">
+                    <span class="tag is-primary" v-if="item.is_default">默认</span>
+                    {$ item.name $}{$ item.phone $}
+                    <p class="has-text-grey-dark">
+                        {$ item.province $}{$ item.city $}{$ item.county $}{$ item.address $}
+                    </p>
+                </a>
+                <p class="has-text-danger" v-if="!address.length">暂未添加收货地址，请直接在输入框填写收货地址即可！</p>
+            </div>
+        </div>
+    </div>
+</b-modal>

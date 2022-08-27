@@ -1,0 +1,264 @@
+{% extends 'happy_shop/base.html' %}
+{% load static %}
+
+{% block title %} 个人中心-{{ title }}{% endblock %}
+{% block banner %}{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    <!-- <b-breadcrumb-item tag='a'>Docs</b-breadcrumb-item> -->
+    <b-breadcrumb-item tag='a' active>个人中心</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block main %}
+    <section class="section" id="userProfile">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-3">
+                    <div class="box">
+                        <b-menu>
+                            <!-- <b-menu-list label="个人信息">
+                                <b-menu-item label="我的信息"></b-menu-item>
+                            </b-menu-list> -->
+                            <b-menu-list label="我的">
+                              <b-menu-item icon="toy-brick-plus-outline" 
+                                tag="a"
+                                {% if 'user_orders' in request.path_info %}active{% endif %}
+                                href="{% url 'happy_shop:user_orders' %}"
+                                label="我的订单">
+                              </b-menu-item>
+                              <!-- <b-menu-item icon="account" label="My Account">
+                                <b-menu-item label="Account data"></b-menu-item>
+                                <b-menu-item label="Addresses"></b-menu-item>
+                              </b-menu-item> -->
+                              <b-menu-item
+                                tag="a" 
+                                {% if 'user_address' in request.path_info %}active{% endif %}
+                                href="{% url 'happy_shop:user_address' %}"
+                                icon="map-marker-account-outline" 
+                                label="我的地址"></b-menu-item>
+                            </b-menu-list>
+                        </b-menu>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="box">
+                        {% block menmber %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+
+{% block vue %}
+    <script>
+        var userProfile = new Vue({
+            el: "#userProfile",
+            delimiters: ['{$', '$}'],
+            data: {
+                isActive: true,
+                hasNavigation: false,
+                activeStep: 2,
+                isAddrModalActive:false,
+                isCommentModalActive:false,
+                labelPosition: 'on-border',
+                // 地址
+                address: {
+                    // id设置为null
+                    // 这里主动设置为null，修改的时候后端可以通过该值判断是更新还是新增
+                    id: null,  
+                    name:'',
+                    phone:'',
+                    province:'',
+                    city:'',
+                    county:'',
+                    address:'',
+                    is_default:false
+                },
+                // 订单评价相关
+                rate: 5,
+                maxs: 5,
+                texts: ['差', '一般', '赞', '很赞', '非常赞'],
+                custom: '',
+                comment:''
+            },
+            mounted(){
+                if (!document.querySelector("#pay-status")) return;
+                let pay_status = document.querySelector("#pay-status").value;
+                switch (Number(pay_status)) {
+                    case 1:
+                        this.activeStep = 0;
+                        break;
+                    case 2:
+                        this.activeStep = 1;
+                        break;
+                    case 3:
+                        this.activeStep = 2;
+                        break;
+                    case 4:
+                        this.activeStep = 3;
+                        break;
+                    case 5:
+                        this.activeStep = 4;
+                        break;
+                }
+            },
+
+            methods:{
+                // 添加收货地址
+                addrCreate(){
+                    let sendData = new URLSearchParams();
+                    sendData.append('name', this.address.name);
+                    sendData.append('phone', this.address.phone);
+                    sendData.append('province', this.address.province);
+                    sendData.append('city', this.address.city);
+                    sendData.append('county', this.address.county);
+                    sendData.append('address', this.address.address);
+                    sendData.append('is_default', this.address.is_default);
+                    request({
+                        url:'/address/',
+                        method:'post',
+                        data:sendData
+                    }).then(res => {
+                        if (res.id) {
+                            this.$buefy.toast.open('添加成功');
+                            this.isAddrModalActive=false;
+                            window.location.reload();
+                        }
+                    })
+                },
+
+                // 删除收货地址
+                addrDelete(id){
+                    this.$buefy.dialog.confirm({
+                        message: '是否确认删除该收货地址？',
+                        cancelText: '取消',
+                        confirmText: '确认',
+                        type: 'is-success',
+                        onConfirm: () => {
+                            request({
+                                url:'/address/'+id+'/',
+                                method:"delete"
+                            }).then(res => {
+                                console.log(res)
+                                if (!res) {
+                                    this.$buefy.toast.open('删除成功');
+                                    window.location.reload();  
+                                }
+                            })
+                        }
+                    }) 
+                },
+                // 修改默认收货地址,局部更新
+                addrPatch(id){
+                    this.$buefy.dialog.confirm({
+                        message: '是否确认设置该地址为默认地址？',
+                        cancelText: '取消',
+                        confirmText: '确认',
+                        type: 'is-success',
+                        onConfirm: () => {
+                            request({
+                                url:'/address/'+id+'/',
+                                method:"patch",
+                                data:"is_default=true"
+                            }).then(res => {
+                                console.log(res)
+                                if (res.id) {
+                                    this.$buefy.toast.open('修改成功');
+                                    window.location.reload();  
+                                }
+                            })
+                        }
+                    }) 
+                },
+
+                // 修改收货地址
+                addrUpdate(id){
+                    this.isAddrModalActive=true;
+                    request({
+                        url:'/address/'+id+'/',
+                        method:'get'
+                    }).then(res => {
+                        console.log(res)
+                        this.address=res
+                    })
+                },
+
+                // 提交修改
+                addrUpdateClick(){
+                    let sendData = new URLSearchParams();
+                    sendData.append('name', this.address.name);
+                    sendData.append('phone', this.address.phone);
+                    sendData.append('province', this.address.province);
+                    sendData.append('city', this.address.city);
+                    sendData.append('county', this.address.county);
+                    sendData.append('address', this.address.address);
+                    sendData.append('is_default', this.address.is_default);
+                    request({
+                        url:'/address/'+this.address.id+'/',
+                        method:'put',
+                        data:sendData
+                    }).then(res => {
+                        console.log(res)
+                        if (res.id) {
+                            this.$buefy.toast.open('修改成功');
+                            this.isAddrModalActive=false;
+                            window.location.reload();
+                        }
+                    })
+                },
+
+                // 确认收货
+                confirmOrders(id){
+                    let sendData = new URLSearchParams();
+                    sendData.append('id', id)
+                    request({
+                        url: '/orderinfo/'+id+'/',
+                        method: 'patch',
+                        data:sendData
+                    }).then(res => {
+                        console.log(res)
+                        if (res.pay_status == 4) {
+                            this.$buefy.toast.open('收货成功！');
+                            setTimeout("window.location.reload()", 1500)
+                        }
+                    })
+                },
+                // 评价
+                addRate(sku_id){
+                    let sendData = new URLSearchParams();
+                    sendData.append('rate', this.rate)
+                    sendData.append('object_id', sku_id)
+                    sendData.append('comment', this.comment)
+                    // sendData.append('content_type', 17)
+                    request({
+                        url: '/rate/',
+                        method: 'post',
+                        data:sendData
+                    }).then(res => {
+                        console.log(res)
+                        if (res.status == 403) {
+                            this.$buefy.toast.open(res.data.error);
+                            return
+                        }
+                        if (res.object_id){
+                            this.isCommentModalActive=false;
+                            this.$buefy.toast.open('评价成功！');
+                            // setTimeout("window.location.replace('/happy/user_orders/')", 1500)
+                            setInterval(function(){
+                                window.location.replace('/user_orders/')
+                            }, 1500)
+                            
+
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+{% endblock %}
+    

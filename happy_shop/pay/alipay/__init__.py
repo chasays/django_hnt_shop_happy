@@ -1,0 +1,1 @@
+from .alipay import alipay

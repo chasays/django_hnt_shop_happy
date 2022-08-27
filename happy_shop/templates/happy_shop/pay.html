@@ -1,0 +1,71 @@
+{% extends 'happy_shop/cart.html' %}
+
+{% block title %}
+立即支付 - {{ title }}
+{% endblock %}
+
+{% block extra_style %}
+<style>
+    .step-marker{
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}">首页</b-breadcrumb-item>
+    <b-breadcrumb-item tag='a' active>立即支付</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+{% block step_num %}{% endblock %}
+{% block cart_step_one %}{% endblock %}
+{% block step_two_num %}step="1"{% endblock %}
+{% block cart_step_two_goods %}
+<div >
+    <template>
+        <section>
+            <b-tabs position="is-left" class="block" size="is-large">
+                <!-- <b-tab-item label="商品列表"> -->
+                <!-- <b-tab-item></b-tab-item> -->
+                <b-table :data="skuData" hoverable>
+                    <b-table-column field="sku_id" label="ID" width="60" v-slot="props">
+                        {$ props.row.sku_id $}
+                    </b-table-column>
+
+                    <b-table-column field="main_picture" width="128" label="商品" centered v-slot="props">
+                        <img :src="props.row.main_picture" class="image is-96x96">
+                    </b-table-column>
+
+                    <b-table-column field="title" label="" v-slot="props">
+                        <a>{$ props.row.title $} </a>
+                        <p class="has-text-grey mt-2" v-if="props.row.options">
+                            规格：{$ props.row.options $}</p>
+                    </b-table-column>
+
+                    <b-table-column field="num" label="数量" v-slot="props">
+                        {$ props.row.num $}
+                    </b-table-column>
+
+                    <b-table-column field="sell_price" label="单价" v-slot="props" width="100">
+                        <span class=" is-size-5 has-text-grey">¥</span> {$ props.row.sell_price $}
+                    </b-table-column>
+
+                    <b-table-column label="小计" field="sku_total" width="100" v-slot="props">
+                        <span class="is-size-5 has-text-grey">¥</span> {$ props.row.sku_total $}
+                    </b-table-column>
+            </b-tabs>
+        </section>
+    </template>
+</div>
+
+{% endblock %}
+
+{% block money_left %}{% endblock %}
+
+{% block money_right %}
+<b-button type="is-primary" icon-pack="mdi" @click="payNow" :disabled=!skuData.length
+    icon-right="credit-card-settings-outline">
+    立即支付
+</b-button>
+{% endblock %}

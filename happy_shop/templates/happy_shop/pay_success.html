@@ -1,0 +1,46 @@
+{% extends 'happy_shop/base.html' %}
+
+{% block title %}
+支付成功
+{% endblock %}
+
+{% block breadcrumb_content %}{% endblock %}
+
+{% block main %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
+        <div class="card">
+          <div class="card-content">
+            <h1 class="has-text-success-dark is-size-1 has-text-centered">
+              <span class="icon"><i class="mdi mdi-credit-card-check-outline"></i></span>
+              支付成功
+            </h1>
+            <div class="dropdown-divider"></div>
+            <div class="is-block">
+              <ul class=" has-text-grey-light">
+                <li class="mb-1">订单编号：{{ query_dict.out_trade_no }}</li>
+                <li class="mb-1">实付金额：{{ query_dict.total_amount }}</li>
+                <li class="mb-1">支付日期：{{ query_dict.timestamp }}</li>
+              </ul>
+            </div>
+          </div>
+          <footer class="card-footer">
+            <p class="card-footer-item">
+              <span>
+                <a href="{% url 'happy_shop:index' %}">返回首页</a>
+              </span>
+            </p>
+            <p class="card-footer-item">
+              <span>
+                <a href="{% url 'happy_shop:user_orders_detail' query_dict.order_id %}">查看订单</a>
+              </span>
+            </p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,60 @@
+<div class="box">
+    <div class="block">
+        <div class="is-pulled-left">
+            <h1 class="is-size-4">
+                <span class="icon"><i class="mdi mdi-map-marker-multiple-outline"></i></span>
+                收货地址</h1>
+        </div>
+        <div class="is-pulled-right pb-2">
+            <b-button type="is-primary" icon-left="map-marker-multiple-outline" outlined  @click="isCardModalActive = true">
+                选择收货地址
+            </b-button>
+        </div>
+        <div class="is-clearfix"></div>
+        <!-- <div class=" dropdown-divider mb-5"></div> -->
+    </div>
+    <div class="addr-list">
+        <section>
+            <b-field grouped group-multiline class="pb-3">
+            <b-field label="姓名" 
+                :type="defaultAddr.name ? 'is-success' : 'is-info'"
+                :label-position="labelPositionForm" 
+                expanded>
+                <b-input v-model="defaultAddr.name" class="mb-4"></b-input>
+            </b-field>
+            <b-field label="电话"
+                :type="defaultAddr.phone ? 'is-success' : 'is-info'" 
+                :label-position="labelPositionForm" 
+                expanded>
+                <b-input v-model="defaultAddr.phone"></b-input>
+            </b-field>
+            <b-field label="省份"
+                :type="defaultAddr.province ? 'is-success' : 'is-info'" 
+                :label-position="labelPositionForm"
+                expanded>
+                <b-input v-model="defaultAddr.province"></b-input>
+            </b-field>
+            <b-field label="城市" 
+                :type="defaultAddr.city ? 'is-success' : 'is-info'" 
+                :label-position="labelPositionForm" 
+                expanded>
+                <b-input v-model="defaultAddr.city"></b-input>
+            </b-field>
+            <b-field label="区县" 
+                :type="defaultAddr.county ? 'is-success' : 'is-info'" 
+                :label-position="labelPositionForm" 
+                expanded>
+                <b-input v-model="defaultAddr.county"></b-input>
+            </b-field>
+            <b-field label="详细地址"
+                :type="defaultAddr.address ? 'is-success' : 'is-info'"  
+                :label-position="labelPositionForm" 
+                expanded>
+                <b-input v-model="defaultAddr.address"></b-input>
+            </b-field>
+        </b-field>
+        </section>
+
+    </div>
+</div>
+{% include 'happy_shop/addr_modal.html' %}

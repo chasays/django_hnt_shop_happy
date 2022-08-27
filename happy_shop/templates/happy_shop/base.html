@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+{% load static tpl_tags %}
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'happy_shop/css/buefy.min.css' %}">
+    <link rel="stylesheet" href="{% static 'happy_shop/css/materialdesignicons.min.css' %}">
+    <script src="{% static 'happy_shop/js/axios.min.js' %}"></script>
+    <!-- <link rel="stylesheet" href="https://jenil.github.io/bulmaswatch/cerulean/bulmaswatch.min.css"> -->
+    {% block extra_style %}{% endblock %}
+</head>
+
+<body>
+    <header id="header">
+        {% block head_top %}
+            {% include 'happy_shop/head_top.html' %}
+        {% endblock %}
+        
+        {% block header %}
+        {% get_navs as navs %}
+        <template>
+            <b-navbar wrapper-class="{% block navclass %}container{% endblock %}" type="is-primary" shadow spaced>
+                <template #brand>
+                    {% block brand %}
+                    <b-navbar-item tag="div">
+                        <span class=" is-size-3">{{ title }}</span> 
+                    </b-navbar-item>
+                    {% endblock %}
+                </template>
+                <template #start>
+                    {% block start %}
+                    <b-navbar-item href="{% url 'happy_shop:index' %}">
+                        首页
+                    </b-navbar-item>
+                    <b-navbar-item href="{% url 'happy_shop:all_category' %}" 
+                        {% if 'all_category' in request.path_info %}active{% endif %}>
+                        <b-icon
+                            pack="mdi"
+                            icon="format-list-text"
+                            size="is-small">
+                        </b-icon>
+                        <span>全部分类</span>
+                    </b-navbar-item>
+                    {% for nav in navs %}
+                    <b-navbar-dropdown label="{{ nav.name }}">
+                        {% for sub_nav in nav.sub_cates %}
+                        <b-navbar-item 
+                            {% if category.id == sub_nav.id %}active{% endif %} 
+                            tag="a"
+                            href="{% url 'happy_shop:goods' sub_nav.id %}">
+                            {{ sub_nav.name }}
+                        </b-navbar-item>
+                        {% endfor %}
+                    </b-navbar-dropdown>
+                    {% endfor %}
+
+                    {% endblock %}
+                    {% block start_suffix %}{% endblock %}
+                </template>
+
+                <template #end>
+                    {% block end %}
+                    <b-navbar-item tag="div">
+                        {% block end_div %}
+                        <!-- <div class="buttons">
+                            <a class="button is-primary">
+                                <strong>Sign up</strong>
+                            </a>
+                            <a class="button is-light">
+                                Log in
+                            </a>
+                        </div> -->
+                        {% endblock %}
+                    </b-navbar-item>
+                    {% endblock %}
+                </template>
+            </b-navbar>
+        </template>
+        {% endblock %}
+        <!-- 消息通知 -->
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <b-notification
+                    has-icon
+                    auto-close
+                    icon="account-check-outline"
+                    icon-size="is-small"
+                    :progress-bar='progressBar' 
+                    :duration="duration" 
+                    type="{% if message.tags %}is-{{message.tags}} is-light{% endif %}" 
+                    aria-close-label="Close notification">
+                    {{ message }}
+                </b-notification>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </header>
+
+    <div id="breadcrumb">
+        {% block breadcrumb %}
+        <div class="box is-radiusless is-shadowless has-background-light">
+            <div class="container">
+                {% block breadcrumb_content %}
+                <b-breadcrumb align="is-left">
+                    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+                    <b-breadcrumb-item tag='a'>Docs</b-breadcrumb-item>
+                    <b-breadcrumb-item tag='a' active>Breadcrumb</b-breadcrumb-item>
+                </b-breadcrumb>
+                {% endblock %}
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+
+    <div id="banner" class="container">
+        {% block banner %}
+        <template>
+            <b-carousel>
+                <b-carousel-item v-for="(carousel, i) in carousels" :key="i">
+                    <section :class="`hero is-medium is-${carousel.color}`">
+                        <div class="hero-body has-text-centered">
+                            <h1 class="title">{$ carousel.text $}</h1>
+                        </div>
+                    </section>
+                </b-carousel-item>
+            </b-carousel>
+        </template>
+        {% endblock %}
+    </div>
+
+    {% block main %}{% endblock %}
+
+   
+
+    <script src="{% static 'happy_shop/js/vue.js' %}"></script>
+    <script src="{% static 'happy_shop/js/buefy.min.js' %}"></script>
+    <script src="{% static 'happy_shop/js/request.js' %}"></script>
+    <script>
+        var base = new Vue({
+            el: '#header',
+            delimiters: ['{$', '$}'],
+            data:{
+                navigation: 'home',
+                cartNum: '{{ cart_num }}',
+                duration: 5000,
+                progressBar: true
+            },
+            methods:{
+                logout() {
+                    this.$buefy.dialog.confirm({
+						message: '你确定要退出吗？',
+						cancelText: '取消',
+						confirmText: '确认',
+						onConfirm: () => {
+							axios.get("{% url 'happy_shop:logout' %}").then(() => {
+								this.$buefy.toast.open('退出成功!')
+								setTimeout("window.location.reload()", 1500)
+								// window.location.href = '/users/login/';
+							})
+						}
+					})
+                }
+            }
+        })
+    </script>
+    <script src="{% static 'happy_shop/js/breadcrumb.js' %}"></script>
+    {% block extrafootstyle %}{% endblock %}
+    {% block vue %}{% endblock %}
+</body>
+
+</html>

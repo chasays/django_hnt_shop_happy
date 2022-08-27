@@ -1,0 +1,67 @@
+{% extends 'happy_shop/user_profile.html' %}
+{% block extra_style %}{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:user_profile' %}">个人中心</b-breadcrumb-item>
+    <b-breadcrumb-item tag='a' active>商品评价</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block menmber %}
+<!-- <div class="box">
+<article class="media">
+    <figure class="media-left">
+        <p class="image is-96x96">
+            <img src="{{ MEDIA_URL }}{{ order_sku.sku.main_picture }}">
+        </p>
+    </figure>
+    <div class="media-content">
+        <h1 class="is-size">
+            <a href="{% url 'happy_shop:goods_detail' order_sku.sku.spu.id %}" target="_blank">
+                {{ order_sku.sku.spu.title }}
+            </a>
+        </h1>
+        <p class="has-text-grey-light pt-1 pb-1">规格: {{ order_sku.sku.options.all|join:"," }} </p>
+        <p class="has-text-grey-light">
+            <span class="pr-4">数量: {{ order_sku.count }}</span>
+            <span>单价: {{ order_sku.price }}</span>
+        </p>
+
+    </div>
+    {% comment %} <div class="media-right">
+        {% if not goods.is_commented and order.pay_status == 5 %}
+        <a href="{% url 'happy_shop:user_orders_sku_detail' goods.id %}" class=" button is-small is-success is-outlined">去评价</a>
+        
+        {% elif goods.is_commented %}
+        <button class="button is-small is-outlined">已评价</button>
+        {% endif %}
+    </div> {% endcomment %}
+</article>
+</div> -->
+<div class="box1 is-shadowless">
+    <h1>待评价商品：
+        <a href="{% url 'happy_shop:goods_detail' order_sku.sku.spu.id %}" target="_blank">
+        {{ order_sku.sku.spu.title }}
+        </a>
+    </h1>
+    <div class=" dropdown-divider"></div>
+    <div class="is-block">
+        <b-field label="评价：">
+            <b-input v-model="comment" maxlength="200" type="textarea" placeholder="期待您诚恳的评价！"></b-input>
+        </b-field>
+        <div style="position: relative; top:-20px">
+            <div class="is-pulled-left">
+                <span >评分：</span>
+            </div>
+            <div>
+                <b-rate v-model="rate" spaced :max="maxs" :texts="texts" show-text :custom-text="custom"></b-rate>
+            </div>
+            <div class="is-clearfix"></div>
+        </div>
+        {% comment %} 后端待处理 {% endcomment %}
+        <b-button type="is-primary" expanded @click="addRate({{order_sku.id}})">发布评价</b-button>
+    </div>
+</div>
+{% endblock %}

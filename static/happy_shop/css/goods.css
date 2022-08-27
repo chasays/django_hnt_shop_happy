@@ -1,0 +1,31 @@
+@charset "UTF-8";
+.money-wrapper {
+  height: 78px;
+  color: aliceblue;
+}
+.money-wrapper .sell-price {
+  position: relative;
+  top: 5px;
+  text-decoration: line-through;
+}
+.money-wrapper .sales-border {
+  border-left: solid 1px rgba(252, 252, 252, 0.5);
+}
+
+/* 多规格样式 */
+.spec-sku .attr {
+  border: #e9e9e9 solid 1px;
+}
+
+.spec-sku .attr:hover {
+  border: #d81e06 solid 1px;
+  color: #d81e06;
+  cursor: pointer;
+}
+
+input[type=radio]:checked + .attr {
+  border: #d81e06 solid 1px;
+  box-sizing: border-box;
+  color: #d81e06;
+  background: url("../images/pa_checked01.png") no-repeat right bottom;
+}

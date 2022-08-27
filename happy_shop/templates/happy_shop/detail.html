@@ -1,0 +1,353 @@
+{% extends 'happy_shop/base.html' %}
+{% load static %}
+
+{% block title %}{{ spu.title }}-{{ title }}{% endblock %}
+
+{% block extra_style %}
+<style>
+    /* 在填充数据之前隐藏 */
+    [v-cloak] {
+        display: none !important;
+    }
+    .is-active .al img {
+        filter: grayscale(0%);
+    }
+    .al img {
+        filter: grayscale(70%);
+        /* width: 72px; */
+        /* border: 2px solid transparent; */
+    }
+    /* .al img:hover {
+        border-color: rgb(91, 8, 129);
+    } */
+</style>
+<link rel="stylesheet" href="{% static 'happy_shop/css/goods.css' %}"> 
+{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+        {% for cate in spu.category.all %}
+            {% if not cate.parent %}
+                <b-breadcrumb-item tag='a'>{{ cate.name }}</b-breadcrumb-item>
+            {% else %}
+                <b-breadcrumb-item tag='a' href="{% url 'happy_shop:goods' cate.id %}">{{ cate.name }}</b-breadcrumb-item>
+            {% endif %}
+        {% endfor %}
+    <b-breadcrumb-item tag='a' active>{{ spu.title }}</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block main %}
+<section class="section" id="goodsDetail" v-cloak>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-10">
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <!-- banner -->
+                        <div class="tile is-4">
+                            <template>
+                                <b-carousel :indicator-inside="false">
+                                    <b-carousel-item v-for="(item, i) in datas.carousel" :key="i">
+                                        <b-image class="image is-1by1" :src="item.img"></b-image>
+                                    </b-carousel-item>
+                                    <template #indicators="props">
+                                        <b-image 
+                                            class="al" 
+                                            custom-class="al-image tpl-img" 
+                                            :src="getImgUrl(datas.carousel[props.i].img)"></b-image>
+                                    </template>
+                                </b-carousel>
+                            </template>
+                        </div>
+                        <!-- banner end-->
+                        <div class="tile is-child is-vertical">
+                            <h1 class="title is-size-4">{{ spu.title }}</h1>
+                            <h2 class="subtitle is-size-6">{{ spu.sub_title }}</h2>
+
+                            <div class="money-wrapper has-background-primary">
+                                <div class="good-price">
+                                    <div class="pl-5 is-pulled-left">
+                                        <nav class="level">
+                                            <div class="level-item has-text-left">
+                                              <div class="mt-1">
+                                                    <p class="pl-2 heading sell-price">
+                                                        原价：￥{$ market_price $} </p>
+                                                    <p class="title has-text-white">￥{$ sell_price $} </p>
+                                              </div>
+                                            </div>
+                                          </nav>
+                                    </div>
+                                    <div class="pr-5 is-pulled-right">
+                                        <nav class="level">
+                                            <div class="level-item has-text-centered">
+                                              <div class="pl-5 mt-3 sales-border">
+                                                <p class="is-size-5 has-text-white">{$ sales $}</p>
+                                                <p class="heading">销量</p>
+                                              </div>
+                                            </div>
+                                        </nav>
+                                    </div>
+                                    <div class=" is-clearfix"></div>
+                                </div>
+                            </div>
+
+                            <div class="box is-radiusless">
+                                <!-- 商品规格 -->
+                                <div class="spec-sku mb-5 ">
+                                    <div v-for="(item, index) in productAttr" :key="index" style="line-height: 2.5em;">
+                                        <div class="is-size is-pulled-left mr-4">{$ item.name $}:</div>
+                                        <div class="acea-row list">
+                                            <label v-for="(itm, idx) in item.specs" :key="idx" class="mr-2">
+                                                <input v-model="attrSelected[index]" type="radio" :name="index" :value="itm" :checked="!idx" hidden />
+                                                <span class="pt-1 pb-1 pl-4 pr-4 attr">{$ itm $}</span>
+                                            </label>
+                                            <div class="is-clearfix"></div>
+                                        </div>
+                                        <div class="is-clearfix"></div>
+                                    </div>
+                                </div>
+                                <!-- 商品规格 end-->
+
+                                <!-- 商品数量操作 -->
+                                <template>
+                                    <div class="level mt-4">
+                                        <div class="level-left">
+                                            <label for="">数量：</label>
+                                            <b-field style="position: relative; top:5px">
+                                                <b-numberinput controls-position="compact" min="1" :max="stock" v-model="num" size="is-small">
+                                                </b-numberinput> 
+                                            </b-field>
+                                            <span class="level-item ml-3 is-size-7">库存：{$ stock $}</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <!-- 商品数量操作 end -->
+                                <div class="buttons">
+                                    <b-button type="is-primary" @click="addCarts" :disabled="!stock">加入购物车</b-button>
+                                    <b-button type="is-primary is-light" :disabled="!stock" @click="payNow">立即购买</b-button>
+                                    <!-- <a class="button is-primary is-light" :disabled="!stock" href="{% url 'happy_shop:pay' %}?sku_id="></a> -->
+                                </div>
+                            </div>
+
+                            <div class="box">
+                                <template>
+                                    <section>
+                                        <b-tabs class="block">
+                                            <b-tab-item label="商品详情">
+                                                <div class="content">
+                                                    {{ spu.content|safe }}
+                                                </div>
+                                            </b-tab-item>
+                                            <b-tab-item label="商品评价">
+                                                <div class="good-rate" >
+                                                    <div class=" is-pulled-left is-size has-text-danger-dark">满意度：{{ score }}</div>
+                                                    <div class="rate is-pulled-right">
+                                                        <span class="is-pulled-left is-size has-text-grey-light" 
+                                                            style="position: relative; top: -6px;">评分：</span>
+                                                            <b-rate
+                                                                v-model="rate"
+                                                                :icon-pack="packs"
+                                                                :icon="icons"
+                                                                :max="maxs"
+                                                                :size="sizes"
+                                                                :locale="locale"
+                                                                :show-score="score"
+                                                                :custom-text="custom"
+                                                                :show-text="text"
+                                                                :texts="texts"
+                                                                :rtl="isRtl"
+                                                                :spaced="isSpaced"
+                                                                :disabled="isDisabled">
+                                                            </b-rate>
+                                                        <div class=" is-clearfix"></div>
+                                                    </div>
+                                                    <div class="is-clearfix"></div>
+                                                </div>                                              
+                                                {% for comment in comments %}
+                                                <article class="media">
+                                                    <figure class="media-left">
+                                                      <p class="image is-32x32">
+                                                        <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png">
+                                                      </p>
+                                                    </figure>
+                                                    <div class="media-content">
+                                                        <p>
+                                                            {{ comment.owner.username }}
+                                                            <b-rate size="is-small" :value="{{ comment.rate }}" disabled custom-text="{{ comment.rate }}分"></b-rate>
+                                                        </p>
+                                                        <p class=" is-size-7">{{ comment.add_date|timesince }}前</p>
+                                                        <p class=" has-text-grey-light">{{ comment }}</p>
+                                                    </div>
+                                                  </article>
+                                                {% endfor %}
+                                                    
+                                            </b-tab-item>
+                                            <b-tab-item label="售后保障">{{ spu.after_services }}</b-tab-item>
+                                        </b-tabs>
+                            
+                                    </section>
+                                </template>
+                            </div>
+                        </div>
+                </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
+{% block vue %}
+    <script>
+        var spu_id = '{{ spu.id }}'
+        var goodsDetail = new Vue({
+            el: "#goodsDetail",
+            delimiters: ['{$', '$}'],
+            data:{
+                datas:{},
+                productAttr:[],
+                productValue: {},
+                attrSelected: [],
+                attrValueSelected: null,
+                stock: 0,
+                sales: 0,
+                sell_price:0,
+                market_price: 0,
+                num:1,
+                sku_id:"",
+                // 商品评价
+                rate: {{ rate }},
+                maxs: 5,
+                sizes: '',
+                packs: 'mdi',
+                icons: 'star',
+                score: true,
+                custom: '分',
+                text: false,
+                texts: ['Very bad', 'Bad', 'Good', 'Very good', 'Awesome'],
+                isRtl:false,
+                isSpaced: false,
+                isDisabled: true,
+                locale: undefined, // Browser locale
+            },
+            created(){
+                let self = this;
+                request({
+                    url: '/spu_goods/'+spu_id+'/',
+                    method: 'get',
+                }).then(res => {
+                    self.datas = res;
+                    self.productAttr = res.specs;
+
+                    self.getGoodsValue(self.datas.skus);
+                    if (self.datas.skus.length){
+                        if (self.datas.skus.options === undefined){
+                            // console.log(self.datas.skus.options)
+                            goods = self.datas.skus[0]
+                            this.stock = goods.stocks;
+                            this.market_price = goods.market_price;
+                            this.sell_price = goods.sell_price;
+                            this.sales = goods.sales;
+                            this.sku_id = goods.id;
+                        }
+                        
+                    }
+                })
+            },
+            methods:{
+                getImgUrl(value) {
+                    // console.log(value, 'asdasad')
+                    return `${value}`
+                },
+
+                // 数据处理
+                getGoodsValue(skus){
+                    let self = this;
+                    skus.forEach(element => {
+                        attr = element.options.join()
+                        self.productValue[attr] = element
+                    });
+                },
+
+                // 加入购物车
+                addCarts(){
+                    if (this.num > this.stock){
+                        this.$buefy.toast.open('加入购物车数量不能大于库存哦！')
+                        return;
+                    };
+                    let sendData = new URLSearchParams();
+                    sendData.append('num', this.num)
+                    sendData.append('sku', this.sku_id)
+                    request({
+                        url: '/carts/',
+                        method: 'post',
+                        data: sendData
+                    }).then(res => {
+                        console.log(res, 'asdas')
+                        // 未登录处理,跳转到登录页
+                        if (res.status == 401 || res.status == 403){
+                            this.$buefy.toast.open({
+                                message: res.data.detail,
+                                type: 'is-danger'
+                            })
+                        };
+                        if (res.id) {
+                            base.cartNum=res.sku_data[0].cart_count
+                            this.$buefy.toast.open({
+                                message: "加购成功！",
+                                type: 'is-success'
+                            });
+                        };
+
+                    })
+                },
+                // 立即购买
+                payNow(){
+                    if (this.num > this.stock){
+                        console.log('sadasda')
+                        this.$buefy.toast.open('购买数量不能大于库存哦！')
+                        return;
+                    } 
+                    window.location.href="{% url 'happy_shop:pay' %}?sku_id="+this.sku_id+'&num='+this.num
+                }
+
+            },
+            watch: {
+                productAttr: {
+                    handler(attr){
+                        if (this.datas.skus.length){
+                            this.attrSelected=this.datas.skus[0].options
+                            this.sku_id=this.datas.skus[0].id
+                        }
+                    },
+                    deep: true,
+                },
+
+                attrSelected: {
+                    handler(attr){
+                        if (attr.length){
+                            let name = attr.join(),
+                            goods = this.productValue[name]
+                            if (goods) {
+                                this.attrValueSelected = goods
+                                this.stock = goods.stocks;
+                                this.market_price = goods.market_price;
+                                this.sell_price = goods.sell_price;
+                                this.sales = goods.sales;
+                                this.sku_id=goods.id
+                            } else {
+                                    this.stock = 0;
+                            }
+                        }
+                    },
+                    deep: true,
+                },
+            }
+
+        })
+    </script>
+{% endblock %}
+    

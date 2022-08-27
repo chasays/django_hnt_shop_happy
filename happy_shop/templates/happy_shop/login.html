@@ -1,0 +1,115 @@
+{% extends 'happy_shop/base.html' %}
+{% load i18n static %}
+{% block title %}{{ site_title }}-{{ title }}{% endblock %}
+{% block extra_style %}
+<script src="{% static 'happy_shop/js/three.min.js' %}"></script>
+<script src="{% static 'happy_shop/js/vanta.birds.min.js' %}"></script>
+
+{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block banner %}{% endblock %}
+
+
+{% block header %}{% endblock %}
+    
+
+{% block main %}
+<div class="hero is-fullheight" id="simpleShopLogin">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-5-desktop is-4-fullhd">
+                    <div class="box mt-6">
+                        <p class="subtitle has-text-centered">{% block form_title %}登录{% endblock %}</p>
+                        <h1 class="title is-size-3 has-text-centered">{{ title }}</h1>
+                        <div class=" dropdown-divider"></div>
+                        {% block formerrors %}
+                        {% if form.errors and not form.non_field_errors %}
+                        <b-message type="is-danger">
+                            {% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{%
+                            else %}{% translate "Please correct the errors below." %}{% endif %}
+                        </b-message>
+                        {% endif %}
+                        {% endblock %}
+                        
+                        {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                        <b-message type="is-danger">
+                            {{ error }}
+                        </b-message>
+                        {% endfor %}
+                        {% endif %}
+
+
+                        {% if user.is_authenticated %}
+                        <b-message type="is-danger">
+                            {% blocktranslate trimmed %}
+                            You are authenticated as {{ username }}, but are not authorized to
+                            access this page. Would you like to login to a different account?
+                            {% endblocktranslate %}
+                        </b-message>
+                        {% endif %}
+
+                        {% block form %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="mb-2">
+                                <b-field label="{{ field.label }}" :label-position="labelPosition">
+                                    {{ field }}
+                                    <template #message>
+                                        {% if field.errors %}
+                                        <div class=" has-text-danger">{{ field.errors }}</div>
+                                        {% else %}
+                                        {{ field.help_text }}
+                                        {% endif %}
+                                    </template>
+                                </b-field>
+                            </div>
+                            {% endfor %}
+                            <input type="hidden" name="next" value="{{ next }}">
+                            {% url 'admin_password_reset' as password_reset_url %}
+                            {% if password_reset_url %}
+                            <div class="is-size-7 has-text-grey-light mb-3">
+                                <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+                            </div>
+                            {% endif %}
+                            <input type="submit" class=" button is-fullwidth is-primary" value="登录">
+                        </form>
+                        {% endblock %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head_top %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block vue %}
+<script>
+    var simpleShopLogin = new Vue({
+        el: "#simpleShopLogin",
+        delimiters: ['{$', '$}'],
+        data: {
+            labelPosition: 'on-border'
+        }
+    })
+</script>
+
+<script>
+    VANTA.BIRDS({
+      el: "#simpleShopLogin",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00
+    })
+</script>
+{% endblock %}

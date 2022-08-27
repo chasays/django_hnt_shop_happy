@@ -1,0 +1,65 @@
+{% extends 'happy_shop/base.html' %}
+{% block title %}全部分类{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    <!-- <b-breadcrumb-item tag='a' href="{% url 'happy_shop:user_profile' %}">个人中心</b-breadcrumb-item> -->
+    <b-breadcrumb-item tag='a' active>全部分类</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block banner %}{% endblock %}
+{% block main %}
+<section class="section" id="allCategory">
+    <div class="container">
+        <template>
+            {% for cate in navs %}
+            <section>
+                <b-collapse class="card" animation="slide" aria-id="contentIdForA11y3">
+                    <template #trigger="props">
+                        <div class="card-header" role="button" aria-controls="contentIdForA11y3">
+                            <p class="card-header-title">
+                                {{ cate.name }}
+                            </p>
+                            <a class="card-header-icon">
+                                <b-icon :icon="props.open ? 'menu-down' : 'menu-up'">
+                                </b-icon>
+                            </a>
+                        </div>
+                    </template>
+                    <div class="card-content">
+                        <div class="content">
+                            <div class="columns">
+                                {% for sub_cate in cate.sub_cates %}
+                                <div class="column is-2">
+                                    <div class=" has-text-centered">
+                                        <a class="box" href="{% url 'happy_shop:goods' sub_cate.id %}">
+                                            <img src="{{ MEDIA_URL }}{{ sub_cate.icon }}" width="96px" height="96px"
+                                                alt="{{ sub_cate.name }}">
+                                            <p class=" has-text-primary"> {{ sub_cate.name }}</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </b-collapse>
+            </section>
+            {% endfor %}
+        </template>
+    </div>
+</section>
+{% endblock %}
+
+
+{% block vue %}
+    <script>
+        var allCategory = new Vue({
+            el:'#allCategory',
+            data:{}
+        })
+    </script>
+{% endblock %}
+    

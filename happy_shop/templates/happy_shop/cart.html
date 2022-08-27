@@ -1,0 +1,401 @@
+{% extends 'happy_shop/base.html' %}
+
+{% block title %} 购物车 - {{ title }}{% endblock %}
+
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    <!-- <b-breadcrumb-item tag='a' href="{% url 'happy_shop:user_profile' %}">个人中心</b-breadcrumb-item> -->
+    <b-breadcrumb-item tag='a' active>我的购物车</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block main %}
+<style>
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+<section class="section" id="cart">
+    <div class="container">
+        <template>
+            <section>
+                {% comment %}
+                <div class="block">
+                    <b-field grouped group-multiline>
+                        <div class="control">
+                            <b-switch v-model="showSocial"> Show Social step </b-switch>
+                        </div>
+                        <div class="control">
+                            <b-switch v-model="isAnimated"> Animated </b-switch>
+                        </div>
+                        <div class="control">
+                            <b-switch v-model="isRounded"> Rounded </b-switch>
+                        </div>
+                        <div class="control">
+                            <b-switch v-model="isStepsClickable"> Clickable Marker </b-switch>
+                        </div>
+                    </b-field>
+                    <b-field grouped group-multiline>
+                        <div class="control">
+                            <b-switch v-model="hasNavigation"> Navigation Buttons </b-switch>
+                        </div>
+                        <div class="control">
+                            <b-switch v-model="customNavigation"> Custom Navigation </b-switch>
+                        </div>
+                        <div class="control">
+                            <b-switch v-model="isProfileSuccess"> Set <code>is-success</code> for profile </b-switch>
+                        </div>
+                    </b-field>
+                    <b-field v-if="hasNavigation" grouped group-multiline>
+                        <b-field label="Prev icon">
+                            <b-select v-model="prevIcon">
+                                <option value="chevron-left">Chevron</option>
+                                <option value="arrow-left">Arrow</option>
+                            </b-select>
+                        </b-field>
+                        <b-field label="Next icon">
+                            <b-select v-model="nextIcon">
+                                <option value="chevron-right">Chevron</option>
+                                <option value="arrow-right">Arrow</option>
+                            </b-select>
+                        </b-field>
+                        <b-field label="Label position">
+                            <b-select v-model="labelPosition">
+                                <option value="bottom">Bottom</option>
+                                <option value="right">Right</option>
+                                <option value="left">Left</option>
+                            </b-select>
+                        </b-field>
+                        <b-field label="Mobile mode">
+                            <b-select v-model="mobileMode">
+                                <option :value="null">-</option>
+                                <option value="minimalist">Minimalist</option>
+                                <option value="compact">Compact</option>
+                            </b-select>
+                        </b-field>
+                    </b-field>
+                </div>
+                {% endcomment %}
+                <b-steps
+                    class="box"
+                    v-model="activeStep"
+                    :animated="isAnimated"
+                    :rounded="isRounded"
+                    :has-navigation="hasNavigation"
+                    :icon-prev="prevIcon"
+                    :icon-next="nextIcon"
+                    :label-position="labelPosition"
+                    :mobile-mode="mobileMode">
+                    
+                    {% block cart_step_one %}
+                    <b-step-item step="1" label="放入购物车" :clickable="isStepsClickable">
+                        <!-- <h1 class="title has-text-centered">Account</h1> -->
+                        <div class="mt-3">
+                            {% include 'happy_shop/cart_table.html' %}
+                        </div>
+                    </b-step-item>
+                    {% endblock %}
+                    {% block cart_step_two %}
+                    <b-step-item {% block step_two_num %}step="2"{% endblock %} label="确认订单/支付" :clickable="isStepsClickable" :type="{'is-success': isProfileSuccess}">
+                        <!-- <h1 class="title has-text-centered">Profile</h1> -->
+                        <div {% block mt %}class="mt-3"{% endblock %}>
+                            {% block cart_step_two_goods %}
+                            {% include 'happy_shop/cart_confirm.html' %}
+                            {% endblock %}
+                            {% include 'happy_shop/address.html' %}
+                            {% include 'happy_shop/pay_method.html' %}
+                        </div>
+                    </b-step-item>
+                    {% endblock %}
+                        
+                    <template
+                        v-if="customNavigation"
+                        #navigation="{previous, next}">
+                        <div class="has-background-light box">
+                            <div class="is-pulled-left">
+                                {% block money_left %}
+                                已选 <span class="is-size-4 has-text-primary">{$ checkedRows.length $}</span> 件商品，
+                                合计，不含运费：<span class="is-size-4 has-text-primary">¥{$ totalPrice|numFilter $}</span>
+                                {% endblock %}
+                            </div>
+                            <div class=" is-pulled-right">
+                                {% block money_right %}
+                                <b-button v-if="!previous.disabled"
+                                    outline
+                                    type="is-info is-light"
+                                    icon-pack="mdi"
+                                    icon-left="chevron-left"
+                                    :disabled="previous.disabled"
+                                    @click.prevent="previous.action">
+                                    返回修改
+                                </b-button>
+                                <b-button v-if="!next.disabled"
+                                    type="is-primary"
+                                    icon-pack="mdi"
+                                    icon-right="chevron-right"
+                                    :disabled="checkedRows.length ? next.disabled:checkedRows.length"
+                                    @click.prevent="next.action">
+                                    下一步
+                                </b-button>
+                                <b-button v-else
+                                    type="is-primary"
+                                    icon-pack="mdi"
+                                    @click="payMent"
+                                    :disabled=!checkedRows.length
+                                    icon-right="credit-card-settings-outline">
+                                    立即支付
+                                </b-button>
+                                {% endblock %}
+                            </div>
+                            <div class="is-clearfix"></div>
+                        </div>
+                        
+                    </template>
+                    
+                </b-steps>
+            </section>
+        </template>
+
+    </div>
+</section>
+{% endblock %}
+
+
+{% block vue %}
+<script>
+    /*
+     * 调试数据
+        const data = [
+            { 'id': 1, 'first_name': 'Jesse', 'last_name': 'Simmons', 'date': '2016-10-15 13:43:27', 'gender': 'Male' },
+            { 'id': 2, 'first_name': 'John', 'last_name': 'Jacobs', 'date': '2016-12-15 06:00:53', 'gender': 'Male' },
+            { 'id': 3, 'first_name': 'Tina', 'last_name': 'Gilbert', 'date': '2016-04-26 06:26:28', 'gender': 'Female' },
+            { 'id': 4, 'first_name': 'Clarence', 'last_name': 'Flores', 'date': '2016-04-10 10:28:46', 'gender': 'Male' },
+            { 'id': 5, 'first_name': 'Anne', 'last_name': 'Lee', 'date': '2016-12-06 14:38:38', 'gender': 'Female' }
+        ]
+    */
+
+    // 立即支付数据
+    if ('{{ sku_data|escapejs }}') {
+        var sku_Data = JSON.parse('{{ sku_data|escapejs }}')
+    } else {
+        var sku_Data = []
+    }
+    
+    var cart = new Vue({
+        el: '#cart',
+        delimiters: ['{$', '$}'],
+        data: {
+            // data: data,
+            checkboxPosition: 'left',
+            checkedRows: [],
+            carts: [],
+            editable: false,
+            totalPrice: 0,
+            // 步骤
+            activeStep: 0,
+            showSocial: false,
+            isAnimated: true,
+            isRounded: true,
+            isStepsClickable: false,
+            hasNavigation: true,
+            customNavigation: true,
+            isProfileSuccess: false,
+            prevIcon: 'chevron-left',
+            nextIcon: 'chevron-right',
+            labelPosition: 'left',
+            mobileMode: 'minimalist',
+            // 地址操作相关
+            labelPositionForm: 'on-border',
+            address: [],
+            defaultAddr: {
+                "id":"",
+                "name": "",
+                "phone": "",
+                "email": "",
+                "province": "",
+                "city": "",
+                "county": "",
+                "address": "",
+                "is_default": null
+            },
+            isCardModalActive: false,
+            // 支付方式
+            pay_method:{
+                "pupay":4,   // 余额
+                "wxpay": 3,  // 微信
+                "alipay":2,  // 支付宝
+                "hdpay":1,   // 货到付款
+            },
+            radioButton: 2,  // 选中的支付方式
+
+            // 立即支付数据
+            skuData:sku_Data
+        },
+        filters: {
+            numFilter(value) {
+                let realVal = ''
+                if (!isNaN(value) && value !== '') {
+                    // 截取当前数据到小数点后两位
+                    realVal = parseFloat(value).toFixed(2)
+                } else {
+                    realVal = '-'
+                }
+                return realVal
+            }
+        },
+        created() {
+            this.getCarts();
+            this.getAddress();
+        },
+        methods: {
+            // 获取购物车数据
+            getCarts() {
+                request({
+                    url: '/carts/',
+                    method: 'get',
+                }).then(res => {
+                    // console.log(res)
+                    this.carts = res;
+                    // 数据请求成功后有库存的商品全部选中
+                    this.carts.forEach((element, i, arr) => {
+                        this.totalPrice += Number(element.num) * parseFloat(element.sku_data[0].sell_price);
+                        // 有库存的商品默认选中
+                        if (element.sku_data[0].stocks > element.num) {
+                            // console.log(element.sku_data[0].stocks)
+                            this.checkedRows.push(arr[i])
+                        }
+                    });
+                })
+            },
+
+            // 删除购物车商品
+            delCart(cart_id){
+                console.log(cart_id)
+                this.carts.forEach(element => {
+                    if (cart_id == element.id){
+                        // 弹出确认删除框
+                        this.$buefy.dialog.confirm({
+                            // title: 'Privacy Politics',
+                            message: '是否确认删除该购物车商品？',
+                            cancelText: '取消',
+                            confirmText: '删除',
+                            type: 'is-success',
+                            onConfirm: () => {
+                                // 删除购物车商品
+                                request({
+                                    url:'/carts/'+cart_id+'/',
+                                    method:'delete'
+                                }).then(res => {
+                                    // 无刷新删除
+                                    this.carts.splice(this.carts.indexOf(element),1);
+                                    this.checkedRows.splice(this.checkedRows.indexOf(element),1);
+                                    this.$buefy.toast.open('删除成功')
+                                })
+                                
+                            }
+                        })
+                    }
+                })
+            },
+
+            // 获取当前登录用户的收货地址
+            getAddress(){
+                console.log('ceshi')
+                request({
+                    url: '/address/',
+                    method: 'get'
+                }).then(res => {
+                    console.log(res)
+                    this.address = res;
+                    if (this.address.length) {
+                        this.address.forEach(element => {
+                            if (element.is_default) {
+                                this.defaultAddr=element
+                            }
+                        });
+                    }
+                })
+            },
+
+            // 选择收货地址
+            optAddress(id){
+                this.address.forEach(element => {
+                    if (element.id == id) {
+                        this.defaultAddr=element
+                        this.isCardModalActive=false
+                    }
+                });
+            },
+
+            // 购物车立即支付
+            payMent(){
+                let sendData = new URLSearchParams()
+                sendData.append('address', JSON.stringify(this.defaultAddr))
+                sendData.append('carts', JSON.stringify(this.checkedRows))
+                sendData.append('pay_method', this.radioButton)
+                // console.log(this.radioButton)
+                request({
+                    url:'/orderinfo/',
+                    method:'post',
+                    data:sendData
+                }).then(res => {
+                    if (res.id) {
+                        window.location.href=res.alipay_url
+                        // window.open(res.alipay_url)
+                    }
+                    
+                })
+            },
+
+            // 商品详情立即支付
+            payNow(){
+                let sendData = new URLSearchParams()
+                sendData.append('address', JSON.stringify(this.defaultAddr))
+                sendData.append('sku_data', JSON.stringify(this.skuData))
+                sendData.append('pay_method', this.radioButton)
+                // console.log(this.radioButton)
+                request({
+                    url:'/paynow/',
+                    method:'post',
+                    data:sendData
+                }).then(res => {
+                    if (res.id) {
+                        window.location.href=res.alipay_url
+                        // window.open(res.alipay_url)
+                    }
+                    console.log(res)
+                })
+            }
+        },
+
+        watch: {
+            // 监听选中数据变化
+            checkedRows: {
+                handler: function (val, oldval) {
+                    this.totalPrice = 0;
+                    val.forEach(element => {
+                        element.sku_data[0].sku_total = (element.num * parseFloat(element.sku_data[0].sell_price)).toFixed(2)
+                        this.totalPrice += element.num * parseFloat(element.sku_data[0].sell_price)
+                    });
+                },
+                deep: true
+            },
+            // 监听data数据变化
+            carts: {
+                handler: function (val, oldval) {
+                    val.forEach((element) => {
+                        console.log(element)
+                        if (element.num > element.sku_data[0].stocks){
+                            this.$buefy.toast.open('测试')
+                            return;
+                        }
+                        element.sku_data[0].sku_total = (element.num * parseFloat(element.sku_data[0].sell_price)).toFixed(2);
+                    });
+                },
+                deep: true
+            },
+        },
+    })
+</script>
+{% endblock %}

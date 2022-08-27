@@ -1,0 +1,68 @@
+<template>
+    <section>
+        <b-tabs position="is-left" class="block" size="is-large">
+            <!-- <b-tab-item label="商品列表"> -->
+            <!-- <b-tab-item></b-tab-item> -->
+                <b-table :data="carts" :checked-rows.sync="checkedRows"
+                    :is-row-checkable="(row) => row.sku_data[0].stocks > row.num" checkable hoverable
+                    :checkbox-position="checkboxPosition">
+                    <b-table-column field="id" label="ID" width="60" v-slot="props">
+                        {$ props.row.id $}
+                    </b-table-column>
+
+                    <b-table-column field="main_picture" width="128" label="商品" centered v-slot="props">
+                        <img :src="props.row.sku_data[0].main_picture" class="image is-96x96">
+                    </b-table-column>
+
+                    <b-table-column field="title" label="" v-slot="props">
+                        <a>{$ props.row.sku_data[0].title $} </a>
+                        <p class="has-text-grey mt-2" v-if="props.row.sku_data[0].options">
+                            规格：{$ props.row.sku_data[0].options $}</p>
+                    </b-table-column>
+
+                    <b-table-column field="num" label="数量" v-slot="props">
+                        <b-field label="">
+                            <b-numberinput controls-position="compact" v-model="props.row.num" size="is-small"
+                                type="is-light" :editable='editable' min="1" message='ceshi'
+                                :max="props.row.sku_data[0].stocks">
+                            </b-numberinput>
+                        </b-field>
+                        <span class="is-size-7 has-text-danger"
+                            v-if="!props.row.sku_data[0].stocks">库存不足,无法支付！</span>
+                    </b-table-column>
+
+                    <b-table-column field="sell_price" label="单价" v-slot="props" width="100">
+                        <span class=" is-size-5 has-text-grey">¥</span> {$ props.row.sku_data[0].sell_price $}
+                    </b-table-column>
+
+                    <b-table-column label="小计" field="sku_total" width="100" v-slot="props">
+                        <span class="is-size-5 has-text-grey">¥</span> {$ props.row.sku_data[0].sku_total $}
+                    </b-table-column>
+
+                    <b-table-column label="操作" field="sku_total_price" v-slot="props">
+                        <b-tooltip label="删除">
+                            <button class="delete" @click="delCart(props.row.id)">删除</button>
+                            <!-- <b-button label="删除" @click="delCart(props.row.id)" type="is-danger" size="is-small" /> -->
+                        </b-tooltip>
+                    </b-table-column>
+                    
+                    {% comment %}
+                    <template #footer>
+                        <div class="box has-background-light is-shadowless">
+                            已选 <span class="is-size-4 has-text-primary">{$ checkedRows.length $}</span> 件商品，
+                            合计，不含运费：<span class="is-size-4 has-text-primary">¥{$ totalPrice|numFilter $}</span>
+                            <!-- <div class="buttons">
+                                asdasd
+                            </div> -->
+                        </div>
+                    </template>
+                    {% endcomment %}
+                </b-table>
+            {% comment %}
+            <b-tab-item label="选中商品数据">
+                <pre>{$ checkedRows $}</pre>
+            </b-tab-item>
+            {% endcomment %}
+        </b-tabs>
+    </section>
+</template>

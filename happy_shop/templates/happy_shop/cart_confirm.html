@@ -1,0 +1,34 @@
+<template>
+    <section>
+        <b-tabs position="is-left" class="block" size="is-large">
+            <!-- <b-tab-item label="商品列表"> -->
+            <!-- <b-tab-item></b-tab-item> -->
+            <b-table :data="checkedRows" hoverable>
+                <b-table-column field="id" label="ID" width="60" v-slot="props">
+                    {$ props.row.id $}
+                </b-table-column>
+
+                <b-table-column field="main_picture" width="128" label="商品" centered v-slot="props">
+                    <img :src="props.row.sku_data[0].main_picture" class="image is-96x96">
+                </b-table-column>
+
+                <b-table-column field="title" label="" v-slot="props">
+                    <a>{$ props.row.sku_data[0].title $} </a>
+                    <p class="has-text-grey mt-2" v-if="props.row.sku_data[0].options">
+                        规格：{$ props.row.sku_data[0].options $}</p>
+                </b-table-column>
+
+                <b-table-column field="num" label="数量" v-slot="props">
+                    {$ props.row.num $}
+                </b-table-column>
+
+                <b-table-column field="sell_price" label="单价" v-slot="props" width="100">
+                    <span class=" is-size-5 has-text-grey">¥</span> {$ props.row.sku_data[0].sell_price $}
+                </b-table-column>
+
+                <b-table-column label="小计" field="sku_total" width="100" v-slot="props">
+                    <span class="is-size-5 has-text-grey">¥</span> {$ props.row.sku_data[0].sku_total $}
+                </b-table-column>
+        </b-tabs>
+    </section>
+</template>

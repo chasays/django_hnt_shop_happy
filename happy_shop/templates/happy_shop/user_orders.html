@@ -1,0 +1,46 @@
+{% extends 'happy_shop/user_profile.html' %}
+{% block extra_style %}
+<style>
+    .modal-background {
+        background-color: rgba(10,10,10,.42) !important;
+    }
+</style>
+{% endblock %}
+{% block breadcrumb_content %}
+<b-breadcrumb align="is-left">
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:index' %}" >首页</b-breadcrumb-item>
+    <b-breadcrumb-item tag='a' href="{% url 'happy_shop:user_profile' %}">个人中心</b-breadcrumb-item>
+    <b-breadcrumb-item tag='a' active>我的订单</b-breadcrumb-item>
+</b-breadcrumb>
+{% endblock %}
+
+{% block menmber %}
+<template>
+    <section>
+        <b-tabs class="block">
+            <b-tab-item label="全部订单">                
+                {% include 'happy_shop/orders_tag.html' with orders=page_obj %}
+                {% include 'happy_shop/widgets/page.html' %}
+            </b-tab-item>
+            <b-tab-item label="待付款">
+                {% include 'happy_shop/orders_tag.html' with orders=tobpay_orders %}
+            </b-tab-item>
+            <b-tab-item label="待发货">
+                {% include 'happy_shop/orders_tag.html' with orders=tobdeliver_orders %}
+            </b-tab-item>
+            <b-tab-item label="待收货">
+                {% include 'happy_shop/orders_tag.html' with orders=tobreceived_orders %}
+            </b-tab-item>
+            <b-tab-item label="待评价">
+                {% include 'happy_shop/orders_tag.html' with orders=tobevaluate_orders %}
+            </b-tab-item>
+            <b-tab-item label="已完成">
+                {% include 'happy_shop/orders_tag.html' with orders=complete_orders %}
+            </b-tab-item>
+            <!-- <b-tab-item label="已取消"></b-tab-item> -->
+        </b-tabs>
+    </section>
+</template>
+
+{% endblock %}
+    

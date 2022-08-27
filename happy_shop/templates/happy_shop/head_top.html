@@ -1,0 +1,63 @@
+<template>
+    <nav class="navbar container">
+        <div class="navbar-menu">
+            <!-- <a class="navbar-item">
+                <b-icon size="is-small" pack="mdi" icon="star-plus-outline"></b-icon>
+                <span>收藏本站</span> 
+            </a> -->
+            <span class="navbar-item">Helium</span>
+        </div>
+
+        <!-- <div class="navbar-menu"> -->
+        <div class="navbar-brand">
+            <div class="navbar-end" style="display: flex;justify-content: center;">
+                {% if request.user.is_authenticated %}
+                    <b-dropdown
+                        v-model="navigation"
+                        position="is-bottom-left"
+                        append-to-body
+                        aria-role="menu">
+                        <template #trigger>
+                            <a
+                                class="navbar-item"
+                                role="button">
+                                <span>{{ request.user.username }}</span>
+                                <b-icon icon="menu-down"></b-icon>
+                            </a>
+                        </template>
+                        <b-dropdown-item custom aria-role="menuitem">
+                            欢迎来到 <b>HNT</b>
+                        </b-dropdown-item>
+                        <hr class="dropdown-divider">
+                        <b-dropdown-item has-link aria-role="menuitem">
+                            <a href="{% url 'happy_shop:user_orders' %}">
+                                <b-icon icon="toy-brick-plus-outline" size="is-small"></b-icon>
+                                我的订单
+                            </a>
+                        </b-dropdown-item>
+                        <b-dropdown-item  @click="logout">
+                            <b-icon icon="logout" size="is-small"></b-icon>
+                            退出
+                        </b-dropdown-item>
+                    </b-dropdown>
+                {% else %}
+                <a href="{% url 'happy_shop:register' %}" class="navbar-item pl-5 pr-5" 
+                    style="border-right:solid 1px #eee;border-left:solid 1px #eee;">
+                    <b-icon size="is-small" pack="mdi" icon="account-plus-outline"></b-icon>
+                    <span>注册</span> 
+                    
+                </a> 
+                <!-- <span class="navbar-item p-0">|</span> -->
+                <a href="{% url 'happy_shop:login' %}" class="navbar-item pl-5 pr-5" style="border-right:solid 1px #eee;">
+                    <b-icon size="is-small" pack="mdi" icon="login-variant"></b-icon>
+                    <span>登录</span> 
+                </a>
+                {% endif %}
+                <!-- <a href="{% url 'happy_shop:cart' %}" class="navbar-item has-background-light pl-4 pr-4">
+                    <span class="icon is-small"><i class="mdi mdi-cart-minus"></i></span>
+                    <span class="pl-2">购物车(<span v-if='cartNum'>{$ cartNum $}</span> <i v-else>0</i>)</span> 
+                </a> -->
+            </div>
+        </div>    
+    </nav>
+</template>
