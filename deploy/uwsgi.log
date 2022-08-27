@@ -1505,3 +1505,9 @@ Not Found: /owa/auth/logon.aspx
 <QuerySet [<HappyShopSKU: vast-cotton-boa ['1']>]>
 [pid: 430126|app: 0|req: 105/790] 113.111.115.71 () {40 vars in 918 bytes} [Sat Aug 27 04:52:15 2022] GET / => generated 7103 bytes in 12 msecs (HTTP/2.0 200) 7 headers in 222 bytes (1 switches on core 0)
 [pid: 430130|app: 0|req: 78/791] 113.111.115.71 () {46 vars in 1021 bytes} [Sat Aug 27 04:52:15 2022] GET /api/banners/ => generated 783 bytes in 5 msecs (HTTP/2.0 200) 8 headers in 248 bytes (1 switches on core 1)
+Not Found: /plugins/mobile/h5/mall/8/
+[pid: 430126|app: 0|req: 106/792] 113.111.115.71 () {44 vars in 1062 bytes} [Sat Aug 27 04:53:00 2022] GET /plugins/mobile/h5/mall/8/? => generated 6143 bytes in 6 msecs (HTTP/2.0 404) 6 headers in 215 bytes (1 switches on core 1)
+Not Found: /plugins/mobile/h5/mall/8/
+[pid: 430126|app: 0|req: 107/793] 113.111.115.71 () {40 vars in 969 bytes} [Sat Aug 27 04:53:02 2022] GET /plugins/mobile/h5/mall/8/? => generated 6143 bytes in 6 msecs (HTTP/2.0 404) 6 headers in 215 bytes (1 switches on core 0)
+Not Found: /web/index.php
+[pid: 430126|app: 0|req: 108/794] 113.111.115.71 () {40 vars in 989 bytes} [Sat Aug 27 04:53:04 2022] GET /web/index.php?r=mall%2Findex%2Findex => generated 6130 bytes in 9 msecs (HTTP/2.0 404) 6 headers in 215 bytes (1 switches on core 1)
